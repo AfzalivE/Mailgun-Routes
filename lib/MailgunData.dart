@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-
-import 'Secrets.dart';
+import 'package:mailgun_routes/Secret.dart';
 
 class MailgunData with ChangeNotifier {
   List<MailgunRoute> _routeList;
 
-  var apiKey = api != null ? api : "";
+  MailgunData() {
+  }
 
   List<MailgunRoute> get routeList => _routeList;
 
@@ -19,8 +19,9 @@ class MailgunData with ChangeNotifier {
   }
 
   Future<List<MailgunRoute>> fetchRoutes() async {
+    var secret = await SecretLoader().load();
     final response = await http.get('https://api.eu.mailgun.net/v3/routes',
-        headers: {HttpHeaders.authorizationHeader: 'Basic $apiKey'});
+        headers: {HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}'});
 
     final Map<String, dynamic> responseJson = jsonDecode(response.body);
     var items = responseJson['items'] as List;
