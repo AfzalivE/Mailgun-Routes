@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mailgun_routes/MailgunData.dart';
 import 'package:provider/provider.dart';
 
+import 'network.dart';
+
 void main() => runApp(MailgunApp());
 
 class MailgunApp extends StatelessWidget {
@@ -23,6 +25,15 @@ class RoutesPage extends StatefulWidget {
 }
 
 class _RoutesPageState extends State<RoutesPage> {
+  Future<List<MailgunRoute>> _routeList;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _routeList = fetchRoutes();
+  }
+
   void _addNewRoute() {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => AddRoute()));
@@ -30,12 +41,11 @@ class _RoutesPageState extends State<RoutesPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('print me');
     return ChangeNotifierProvider(
       builder: (context) => MailgunData(),
       child: MyScaffold(
         title: 'Mailgun Routes',
-        body: RouteList(),
+        body: RouteList(routeList: _routeList),
         floatingActionButton: FloatingActionButton(
           onPressed: _addNewRoute,
           tooltip: 'Add route',
@@ -47,11 +57,14 @@ class _RoutesPageState extends State<RoutesPage> {
 }
 
 class RouteList extends StatelessWidget {
+  final Future<List<MailgunRoute>> routeList;
+
+  RouteList({this.routeList});
+
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<MailgunData>(context);
     return FutureBuilder<List<MailgunRoute>>(
-      future: data.fetchRoutes(),
+      future: routeList,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
@@ -66,11 +79,11 @@ class RouteList extends StatelessWidget {
                     ),
                 itemBuilder: (context, position) {
                   return ListTile(
-                    title: Text(data.routeList[position].description),
-                    subtitle: Text(data.routeList[position].expression),
+                    title: Text(snapshot.data[position].description),
+                    subtitle: Text(snapshot.data[position].expression),
                   );
                 },
-                itemCount: data.routeList.length,
+                itemCount: snapshot.data.length,
               ),
             ),
           ]);
