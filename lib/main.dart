@@ -60,12 +60,18 @@ class RouteList extends StatelessWidget {
         if (snapshot.hasData) {
           return Flex(direction: Axis.vertical, children: <Widget>[
             Expanded(
-              child: ListView.builder(
-                  itemBuilder: (context, position) {
-                    return Card(
-                        child: Text(data.routeList[position].description));
-                  },
-                  itemCount: data.routeList.length),
+              child: ListView.separated(
+                separatorBuilder: (context, index) => Divider(
+                      color: Colors.black26,
+                    ),
+                itemBuilder: (context, position) {
+                  return ListTile(
+                    title: Text(data.routeList[position].description),
+                    subtitle: Text(data.routeList[position].expression),
+                  );
+                },
+                itemCount: data.routeList.length,
+              ),
             ),
           ]);
         } else {
