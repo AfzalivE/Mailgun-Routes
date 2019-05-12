@@ -26,12 +26,13 @@ class RoutesPage extends StatefulWidget {
 
 class _RoutesPageState extends State<RoutesPage> {
   Future<List<MailgunRoute>> _routeList;
-
+  MailgunData _data;
 
   @override
   void initState() {
     super.initState();
-    _routeList = fetchRoutes();
+    _data = MailgunData();
+    _routeList = fetchRoutes(_data);
   }
 
   void _addNewRoute() {
@@ -42,7 +43,7 @@ class _RoutesPageState extends State<RoutesPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      builder: (context) => MailgunData(),
+      builder: (context) => _data,
       child: MyScaffold(
         title: 'Mailgun Routes',
         body: RouteList(routeList: _routeList),
@@ -63,6 +64,7 @@ class RouteList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<MailgunData>(context);
     return FutureBuilder<List<MailgunRoute>>(
       future: routeList,
       builder: (context, snapshot) {
@@ -71,6 +73,7 @@ class RouteList extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
+//          data.routeList = snapshot.data;
           return Flex(direction: Axis.vertical, children: <Widget>[
             Expanded(
               child: ListView.separated(
