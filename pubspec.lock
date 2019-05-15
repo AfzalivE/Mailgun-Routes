@@ -49,9 +49,9 @@ packages:
   http:
     dependency: "direct main"
     description:
-      name: http
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../http"
+      relative: true
+    source: path
     version: "0.12.0+2"
   http_parser:
     dependency: transitive

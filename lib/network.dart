@@ -28,13 +28,30 @@ Future<List<MailgunRoute>> fetchRoutes(MailgunData data) async {
 
 void saveRoute(RouteData routeData) async {
   var secret = await SecretLoader().load();
-  final response = await http.post('https://api.eu.mailgun.net/v3/routes',
-      headers: {HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}'},
-      body: jsonEncode(routeData));
+  var request = http.MultipartRequest(
+      "POST", Uri.parse('https://api.eu.mailgun.net/v3/routes'));
+  request.headers.addAll({
+    HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}',
+    HttpHeaders.contentTypeHeader: 'multipart/form-data'
+  });
+  request.fields.add(MapEntry('priority', "0"));
+  request.fields.add(MapEntry('description', "test"));
+  request.fields.add(MapEntry('expression', "match_recipient('test@test.com')"));
+  request.fields.add(MapEntry('action', "forward(\"test@afz.com\")"));
+  request.fields.add(MapEntry('action', "stop()"));
+
+//  request.fields.addAll(routeData.toMap());
+
+  debugPrint(request.fields.toString());
+
+  var response = await request.send();
 
   debugPrint("Saving route: ${routeData.description}");
 
-  debugPrint("Body: ${response.body}");
+  debugPrint("Body: ${response.stream.transform(utf8.decoder)
+  .listen((line) {
+    debugPrint(line);
+  })}");
 }
 
 class RouteData {
@@ -46,6 +63,7 @@ class RouteData {
   set name(String name) {
     _description = name;
   }
+
   List<String> _action;
 
   List<String> get action => _action;
@@ -53,6 +71,7 @@ class RouteData {
   set destinationEmail(String destinationEmail) {
     _action = ["forward(\"$destinationEmail\")", "stop()"];
   }
+
   String _expression;
 
   String get expression => _expression;
@@ -61,11 +80,10 @@ class RouteData {
     _expression = "match_recipient('$sourceEmail')";
   }
 
-  Map<String, dynamic> toJson() =>
-      {
-        'priority' : _priority,
+  Map<String, String> toMap() => {
+        'priority': _priority.toString(),
         'description': _description,
-        'action': _action,
+        'action': _action.toString(),
         'expression': _expression
       };
 
