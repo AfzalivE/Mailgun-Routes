@@ -21,29 +21,30 @@ class MailgunApp extends StatelessWidget {
 
 class RoutesPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _RoutesPageState();
+  State<StatefulWidget> createState() => _RoutesPageState(data: MailgunData());
 }
 
 class _RoutesPageState extends State<RoutesPage> {
   Future<List<MailgunRoute>> _routeList;
-  MailgunData _data;
+  MailgunData data;
+
+  _RoutesPageState({this.data});
 
   @override
   void initState() {
     super.initState();
-    _data = MailgunData();
-    _routeList = fetchRoutes(_data);
+    _routeList = fetchRoutes(data);
   }
 
   void _addNewRoute() {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AddRoute()));
+        context, MaterialPageRoute(builder: (context) => AddRoutePage()));
   }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      builder: (context) => _data,
+      builder: (context) => data,
       child: MyScaffold(
         title: 'Mailgun Routes',
         body: RouteList(routeList: _routeList),
@@ -64,16 +65,14 @@ class RouteList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<MailgunData>(context);
     return FutureBuilder<List<MailgunRoute>>(
       future: routeList,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print(snapshot.error);
+          return Center(child: Text(snapshot.error));
         }
 
         if (snapshot.hasData) {
-//          data.routeList = snapshot.data;
           return Flex(direction: Axis.vertical, children: <Widget>[
             Expanded(
               child: ListView.separated(
@@ -98,46 +97,94 @@ class RouteList extends StatelessWidget {
   }
 }
 
-class AddRoute extends StatelessWidget {
-  void _saveRoute() {}
-
+class AddRoutePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
       title: 'Add Route',
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Route name'),
-            ),
-            SizedBox(height: 8.0),
-            TextField(
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Match Recipient'),
-            ),
-            SizedBox(height: 8.0),
-            TextField(
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Forward to'),
-            ),
-            SizedBox(height: 8.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                MaterialButton(
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  elevation: 4,
-                  onPressed: _saveRoute,
-                  child: Text('Save'),
-                ),
-              ],
-            )
-          ],
-        ),
+        child: AddRouteForm(),
+      ),
+    );
+  }
+}
+
+class AddRouteForm extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return AddRouteFormState();
+  }
+}
+
+class AddRouteFormState extends State<AddRouteForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _routeData = RouteData();
+
+  void _saveRoute() {
+    if (_formKey.currentState.validate()) {
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text('Saving route')));
+
+      saveRoute(_routeData);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: <Widget>[
+          TextFormField(
+            validator: (value) {
+              if (value.isEmpty) {
+                return "Please enter a name for this route";
+              } else {
+                _routeData.name = value;
+              }
+            },
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Route name'),
+          ),
+          SizedBox(height: 8.0),
+          TextFormField(
+            validator: (value) {
+              if (value.isEmpty) {
+                return "Please enter an email for this route";
+              } else {
+                _routeData.sourceEmail = value;
+              }
+            },
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Match Recipient'),
+          ),
+          SizedBox(height: 8.0),
+          TextFormField(
+            validator: (value) {
+              if (value.isEmpty) {
+                return "Please enter the destination email for this route";
+              } else {
+                _routeData.destinationEmail = value;
+              }
+            },
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Forward to'),
+          ),
+          SizedBox(height: 8.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              MaterialButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                elevation: 4,
+                onPressed: _saveRoute,
+                child: Text('Save'),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
