@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mailgun_routes/MailgunData.dart';
 import 'package:provider/provider.dart';
 
-import 'network.dart';
+import 'MailgunApi.dart';
+import 'MailgunData.dart';
 
 void main() => runApp(MailgunApp());
 

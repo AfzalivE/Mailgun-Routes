@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'MailgunData.dart';
+import 'PwnedApi.dart';
 import 'Secret.dart';
 
 Future<List<MailgunRoute>> fetchRoutes(MailgunData data) async {
@@ -20,7 +21,11 @@ Future<List<MailgunRoute>> fetchRoutes(MailgunData data) async {
   final Map<String, dynamic> responseJson = jsonDecode(response.body);
   var items = responseJson['items'] as List;
   List<MailgunRoute> list =
-      items.map((item) => MailgunRoute.fromJson(item)).toList();
+      items.map((item) {
+        var mailgunRoute = MailgunRoute.fromJson(item);
+        fetchPwnedWebsites(mailgunRoute);
+        return mailgunRoute;
+      }).toList();
 
   data.routeList = list;
   return list;
@@ -34,11 +39,11 @@ void saveRoute(RouteData routeData) async {
     HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}',
     HttpHeaders.contentTypeHeader: 'multipart/form-data'
   });
-  request.fields.add(MapEntry('priority', "0"));
-  request.fields.add(MapEntry('description', "test"));
-  request.fields.add(MapEntry('expression', "match_recipient('test@test.com')"));
-  request.fields.add(MapEntry('action', "forward(\"test@afz.com\")"));
-  request.fields.add(MapEntry('action', "stop()"));
+  request.fields['priority'] = "0";
+  request.fields['description'] = routeData.description;
+  request.fields['expression'] = routeData.expression;
+  request.fields['action[0]'] = routeData.action[0];
+  request.fields['action[1]'] = routeData.action[1];
 
 //  request.fields.addAll(routeData.toMap());
 
@@ -48,8 +53,7 @@ void saveRoute(RouteData routeData) async {
 
   debugPrint("Saving route: ${routeData.description}");
 
-  debugPrint("Body: ${response.stream.transform(utf8.decoder)
-  .listen((line) {
+  debugPrint("Body: ${response.stream.transform(utf8.decoder).listen((line) {
     debugPrint(line);
   })}");
 }
