@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 
 import 'MailgunApi.dart';
@@ -33,6 +36,10 @@ class _RoutesPageState extends State<RoutesPage> {
   @override
   void initState() {
     super.initState();
+    refreshList();
+  }
+
+  Future<void> refreshList() async {
     _routeList = fetchRoutes(data);
   }
 
@@ -47,7 +54,7 @@ class _RoutesPageState extends State<RoutesPage> {
       builder: (context) => data,
       child: MyScaffold(
         title: 'Mailgun Routes',
-        body: RouteList(routeList: _routeList),
+        body: RouteList(routeList: _routeList, refreshList: refreshList),
         floatingActionButton: FloatingActionButton(
           onPressed: _addNewRoute,
           tooltip: 'Add route',
@@ -60,8 +67,13 @@ class _RoutesPageState extends State<RoutesPage> {
 
 class RouteList extends StatelessWidget {
   final Future<List<MailgunRoute>> routeList;
+  final Function refreshList;
 
-  RouteList({this.routeList});
+  RouteList({this.routeList, this.refreshList});
+
+  Future<void> refresh() async {
+    refreshList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +87,21 @@ class RouteList extends StatelessWidget {
         if (snapshot.hasData) {
           return Flex(direction: Axis.vertical, children: <Widget>[
             Expanded(
-              child: ListView.separated(
-                separatorBuilder: (context, index) => Divider(
-                      color: Colors.black26,
-                    ),
-                itemBuilder: (context, position) {
-                  return ListTile(
-                    title: Text(snapshot.data[position].description),
-                    subtitle: Text(snapshot.data[position].expression),
-                  );
-                },
-                itemCount: snapshot.data.length,
+              child: LiquidPullToRefresh(
+                showChildOpacityTransition: false,
+                onRefresh: refreshList,
+                child: ListView.separated(
+                  separatorBuilder: (context, index) => Divider(
+                    color: Colors.black26,
+                  ),
+                  itemBuilder: (context, position) {
+                    return ListTile(
+                      title: Text(snapshot.data[position].description),
+                      subtitle: Text(snapshot.data[position].expression),
+                    );
+                  },
+                  itemCount: snapshot.data.length,
+                ),
               ),
             ),
           ]);
@@ -120,6 +136,15 @@ class AddRouteForm extends StatefulWidget {
 class AddRouteFormState extends State<AddRouteForm> {
   final _formKey = GlobalKey<FormState>();
   final _routeData = RouteData();
+  var _nameController = TextEditingController();
+  var _emailController = TextEditingController();
+  var _destinationController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(onChange);
+  }
 
   void _saveRoute() {
     if (_formKey.currentState.validate()) {
@@ -127,7 +152,16 @@ class AddRouteFormState extends State<AddRouteForm> {
           .showSnackBar(SnackBar(content: Text('Saving route')));
 
       saveRoute(_routeData);
+
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Route saved')));
     }
+  }
+
+  void onChange() {
+    var name = _nameController.text.toLowerCase();
+    debugPrint("autofilling form with $name");
+    _emailController.text = "$name@mydomain.com";
+    _destinationController.text = "myemail+$name@gmail.com";
   }
 
   @override
@@ -137,36 +171,42 @@ class AddRouteFormState extends State<AddRouteForm> {
       child: ListView(
         children: <Widget>[
           TextFormField(
+            controller: _nameController,
             validator: (value) {
               if (value.isEmpty) {
                 return "Please enter a name for this route";
               } else {
                 _routeData.name = value;
               }
+              return null;
             },
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), labelText: 'Route name'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
+            controller: _emailController,
             validator: (value) {
               if (value.isEmpty) {
                 return "Please enter an email for this route";
               } else {
                 _routeData.sourceEmail = value;
               }
+              return null;
             },
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), labelText: 'Match Recipient'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
+            controller: _destinationController,
             validator: (value) {
               if (value.isEmpty) {
                 return "Please enter the destination email for this route";
               } else {
                 _routeData.destinationEmail = value;
               }
+              return null;
             },
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), labelText: 'Forward to'),

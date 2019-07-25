@@ -23,7 +23,7 @@ Future<List<MailgunRoute>> fetchRoutes(MailgunData data) async {
   List<MailgunRoute> list =
       items.map((item) {
         var mailgunRoute = MailgunRoute.fromJson(item);
-        fetchPwnedWebsites(mailgunRoute);
+//        fetchPwnedWebsites(mailgunRoute);
         return mailgunRoute;
       }).toList();
 
@@ -39,11 +39,10 @@ void saveRoute(RouteData routeData) async {
     HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}',
     HttpHeaders.contentTypeHeader: 'multipart/form-data'
   });
-  request.fields['priority'] = "0";
-  request.fields['description'] = routeData.description;
-  request.fields['expression'] = routeData.expression;
-  request.fields['action[0]'] = routeData.action[0];
-  request.fields['action[1]'] = routeData.action[1];
+  request.fields['priority'] = ["0"];
+  request.fields['description'] = [routeData.description];
+  request.fields['expression'] = [routeData.expression];
+  request.fields['action'] = routeData.action;
 
 //  request.fields.addAll(routeData.toMap());
 
@@ -90,11 +89,4 @@ class RouteData {
         'action': _action.toString(),
         'expression': _expression
       };
-
-//  RouteData(String name, String sourceEmail, String destinationEmail) {
-//    this.priority = 0;
-//    this.description = name;
-//    this.expression = "match_recipient('$sourceEmail')";
-//    this.action = ["forward(\"$destinationEmail\")", "stop()"];
-//  }
 }
