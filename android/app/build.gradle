@@ -75,4 +75,8 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true
     }
+
+    def appCenterSdkVersion = '2.5.0'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 }
