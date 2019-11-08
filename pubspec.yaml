@@ -18,6 +18,7 @@ environment:
 
 dependencies:
 #  http: ^0.12.0+2
+  flutter_slidable: "^0.5.4"
   liquid_pull_to_refresh: ^1.1.1
   http:
     path: ../http

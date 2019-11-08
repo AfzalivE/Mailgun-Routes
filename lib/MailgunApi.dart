@@ -57,6 +57,21 @@ class MailgunApi {
 
     return createRouteResponse.message.contains("Route has been created");
   }
+
+  deleteRoute(String id) async {
+    var secret = await SecretLoader().load();
+    final response = await http.delete("https://api.eu.mailgun.net/v3/routes/$id", headers: {HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}'});
+
+    debugPrint("Deleting route $id");
+
+    if (response.statusCode == 401 || response.statusCode == 404) {
+      debugPrint("Error deleting route");
+    }
+
+    if (response.statusCode == 200) {
+      debugPrint("Route deleted");
+    }
+  }
 }
 
 class CreateRouteResponse {

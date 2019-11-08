@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 
@@ -50,7 +51,7 @@ class RouteList extends StatefulWidget {
 class _RoutesListState extends State<RouteList> {
   Future<List<MailgunRoute>> _routeList;
 
-  Future<void> refreshList() async {
+  Future<void> _refreshList() async {
     var mailgunApi = Provider.of<MailgunApi>(context);
     final newRouteList = mailgunApi.fetchRoutes();
     if (newRouteList != _routeList) {
@@ -60,10 +61,21 @@ class _RoutesListState extends State<RouteList> {
     }
   }
 
+  Future<void> _deleteRoute(int position) async {
+    var mailgunApi = Provider.of<MailgunApi>(context);
+    _routeList.then((list) {
+      debugPrint("Going to delete item at $position, which is ${list[position].description}");
+      var id = list[position].id;
+      list.removeAt(position); // remove from list first
+      mailgunApi.deleteRoute(id);
+      _refreshList();
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    refreshList();
+    _refreshList();
   }
 
   @override
@@ -80,15 +92,27 @@ class _RoutesListState extends State<RouteList> {
             Expanded(
               child: LiquidPullToRefresh(
                 showChildOpacityTransition: false,
-                onRefresh: refreshList,
+                onRefresh: _refreshList,
                 child: ListView.separated(
                   separatorBuilder: (context, index) => Divider(
                     color: Colors.black26,
                   ),
                   itemBuilder: (context, position) {
-                    return ListTile(
-                      title: Text(snapshot.data[position].description),
-                      subtitle: Text(snapshot.data[position].expression),
+                    return Slidable(
+                      key: ValueKey(snapshot.data[position].id),
+                      actionPane: SlidableScrollActionPane(),
+                      child: ListTile(
+                        title: Text(snapshot.data[position].description),
+                        subtitle: Text(snapshot.data[position].expression),
+                      ),
+                      secondaryActions: <Widget>[
+                        IconSlideAction(
+                          caption: 'Delete',
+                          color: Colors.red,
+                          icon: Icons.delete,
+                          onTap: () => _deleteRoute(position),
+                        ),
+                      ],
                     );
                   },
                   itemCount: snapshot.data.length,

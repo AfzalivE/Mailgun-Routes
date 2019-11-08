@@ -72,3 +72,4 @@ secrets.json
 android/app/fabric.properties
 android/keystore.properties
 android/deploy_beta.sh
+ios/Flutter/flutter_export_environment.sh
