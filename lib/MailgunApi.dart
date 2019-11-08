@@ -1,65 +1,88 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'MailgunData.dart';
-import 'PwnedApi.dart';
 import 'Secret.dart';
 
-Future<List<MailgunRoute>> fetchRoutes(MailgunData data) async {
-  var secret = await SecretLoader().load();
-  final response = await http.get('https://api.eu.mailgun.net/v3/routes',
-      headers: {HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}'});
+class MailgunApi {
+  Future<List<MailgunRoute>> fetchRoutes() async {
+    var secret = await SecretLoader().load();
+    final response = await http.get('https://api.eu.mailgun.net/v3/routes?limit=1000', headers: {HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}'});
 
-  debugPrint("Fetching routes");
-  if (response.statusCode == 401) {
-    return Future.error("Error fetching route data");
+    debugPrint("Fetching routes");
+    if (response.statusCode == 401) {
+      debugPrint("Error fetching route data");
+      return Future.error("Error fetching route data");
+    }
+
+    final Map<String, dynamic> responseJson = jsonDecode(response.body);
+    var items = responseJson['items'] as List;
+    debugPrint("Got ${items.length} items");
+
+    List<MailgunRoute> list = items.map((item) {
+      var mailgunRoute = MailgunRoute.fromJson(item);
+//        fetchPwnedWebsites(mailgunRoute);
+      return mailgunRoute;
+    }).toList();
+
+    return list;
   }
 
-  final Map<String, dynamic> responseJson = jsonDecode(response.body);
-  var items = responseJson['items'] as List;
-  List<MailgunRoute> list =
-      items.map((item) {
-        var mailgunRoute = MailgunRoute.fromJson(item);
-//        fetchPwnedWebsites(mailgunRoute);
-        return mailgunRoute;
-      }).toList();
-
-  data.routeList = list;
-  return list;
-}
-
-void saveRoute(RouteData routeData) async {
-  var secret = await SecretLoader().load();
-  var request = http.MultipartRequest(
-      "POST", Uri.parse('https://api.eu.mailgun.net/v3/routes'));
-  request.headers.addAll({
-    HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}',
-    HttpHeaders.contentTypeHeader: 'multipart/form-data'
-  });
-  request.fields['priority'] = ["0"];
-  request.fields['description'] = [routeData.description];
-  request.fields['expression'] = [routeData.expression];
-  request.fields['action'] = routeData.action;
+  Future<bool> saveRoute(RoutePostBody routeData) async {
+    var secret = await SecretLoader().load();
+    var request = http.MultipartRequest("POST", Uri.parse('https://api.eu.mailgun.net/v3/routes'));
+    request.headers.addAll({HttpHeaders.authorizationHeader: 'Basic ${secret.apiKey}', HttpHeaders.contentTypeHeader: 'multipart/form-data'});
+    request.fields['priority'] = ["0"];
+    request.fields['description'] = [routeData.description];
+    request.fields['expression'] = [routeData.expression];
+    request.fields['action'] = routeData.action;
 
 //  request.fields.addAll(routeData.toMap());
 
-  debugPrint(request.fields.toString());
+    debugPrint(request.fields.toString());
 
-  var response = await request.send();
+    debugPrint("Saving route: ${routeData.description}");
 
-  debugPrint("Saving route: ${routeData.description}");
+    var response = await request.send();
 
-  debugPrint("Body: ${response.stream.transform(utf8.decoder).listen((line) {
-    debugPrint(line);
-  })}");
+    var body = await response.stream.bytesToString();
+
+    debugPrint("Body: $body");
+
+    var createRouteResponse = CreateRouteResponse.fromJson(jsonDecode(body));
+
+    return createRouteResponse.message.contains("Route has been created");
+  }
 }
 
-class RouteData {
-  int _priority = 0;
+class CreateRouteResponse {
+  String message;
+  MailgunRoute route;
+
+  CreateRouteResponse.fromJson(Map<String, dynamic> json) {
+    message = json['message'];
+    route = json['route'] != null ? MailgunRoute.fromJson(json['route']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['message'] = this.message;
+    if (this.route != null) {
+      data['route'] = this.route.toJson();
+    }
+    return data;
+  }
+}
+
+class RoutePostBody {
+  List<String> _action;
   String _description;
+  String _expression;
+  int _priority = 0;
 
   String get description => _description;
 
@@ -67,15 +90,11 @@ class RouteData {
     _description = name;
   }
 
-  List<String> _action;
-
   List<String> get action => _action;
 
   set destinationEmail(String destinationEmail) {
     _action = ["forward(\"$destinationEmail\")", "stop()"];
   }
-
-  String _expression;
 
   String get expression => _expression;
 
@@ -83,10 +102,14 @@ class RouteData {
     _expression = "match_recipient('$sourceEmail')";
   }
 
-  Map<String, String> toMap() => {
-        'priority': _priority.toString(),
-        'description': _description,
-        'action': _action.toString(),
-        'expression': _expression
-      };
+  RoutePostBody();
+
+  RoutePostBody.fromJson(Map<String, dynamic> json) {
+    _action = json['actions'].cast<String>();
+    _description = json['description'];
+    _expression = json['expression'];
+    _priority = json['priority'];
+  }
+
+  Map<String, String> toJson() => {'priority': _priority.toString(), 'description': _description, 'action': _action.toString(), 'expression': _expression};
 }

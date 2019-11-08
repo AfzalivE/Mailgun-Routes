@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
@@ -12,73 +10,66 @@ void main() => runApp(MailgunApp());
 class MailgunApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mailgun Routes',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      darkTheme: ThemeData(
-          primarySwatch: Colors.blue, backgroundColor: Colors.grey[850]),
-      home: RoutesPage(),
-    );
-  }
-}
-
-class RoutesPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _RoutesPageState(data: MailgunData());
-}
-
-class _RoutesPageState extends State<RoutesPage> {
-  Future<List<MailgunRoute>> _routeList;
-  MailgunData data;
-
-  _RoutesPageState({this.data});
-
-  @override
-  void initState() {
-    super.initState();
-    refreshList();
-  }
-
-  Future<void> refreshList() async {
-    _routeList = fetchRoutes(data);
-  }
-
-  void _addNewRoute() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AddRoutePage()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      builder: (context) => data,
-      child: MyScaffold(
+    return Provider(
+      builder: (context) => MailgunApi(),
+      child: MaterialApp(
         title: 'Mailgun Routes',
-        body: RouteList(routeList: _routeList, refreshList: refreshList),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _addNewRoute,
-          tooltip: 'Add route',
-          child: Icon(Icons.add),
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue),
+        darkTheme: ThemeData(primarySwatch: Colors.blue, backgroundColor: Colors.grey[850]),
+        home: RoutesPage(),
       ),
     );
   }
 }
 
-class RouteList extends StatelessWidget {
-  final Future<List<MailgunRoute>> routeList;
-  final Function refreshList;
+class RoutesPage extends StatelessWidget {
 
-  RouteList({this.routeList, this.refreshList});
+  void _addNewRoute(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => AddRoutePage()));
+  }
 
-  Future<void> refresh() async {
+  @override
+  Widget build(BuildContext context) {
+    return MyScaffold(
+        title: 'Mailgun Routes',
+        body: RouteList(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _addNewRoute(context),
+          tooltip: 'Add route',
+          child: Icon(Icons.add),
+        )
+    );
+  }
+}
+
+class RouteList extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _RoutesListState();
+}
+
+class _RoutesListState extends State<RouteList> {
+  Future<List<MailgunRoute>> _routeList;
+
+  Future<void> refreshList() async {
+    var mailgunApi = Provider.of<MailgunApi>(context);
+    final newRouteList = mailgunApi.fetchRoutes();
+    if (newRouteList != _routeList) {
+      setState(() {
+        _routeList = newRouteList;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     refreshList();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<MailgunRoute>>(
-      future: routeList,
+      future: _routeList,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text(snapshot.error));
@@ -113,6 +104,7 @@ class RouteList extends StatelessWidget {
   }
 }
 
+
 class AddRoutePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -135,7 +127,7 @@ class AddRouteForm extends StatefulWidget {
 
 class AddRouteFormState extends State<AddRouteForm> {
   final _formKey = GlobalKey<FormState>();
-  final _routeData = RouteData();
+  final _routeData = RoutePostBody();
   var _nameController = TextEditingController();
   var _emailController = TextEditingController();
   var _destinationController = TextEditingController();
@@ -147,19 +139,21 @@ class AddRouteFormState extends State<AddRouteForm> {
   }
 
   void _saveRoute() {
-    if (_formKey.currentState.validate()) {
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text('Saving route')));
-
-      saveRoute(_routeData);
-
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Route saved')));
+    if (!_formKey.currentState.validate()) {
+      return;
     }
+
+    var savingRoute = Scaffold.of(context).showSnackBar(SnackBar(content: Text('Saving route')));
+
+    var mailgunApi = Provider.of<MailgunApi>(context);
+    var saveRouteResponse = mailgunApi.saveRoute(_routeData);
+    savingRoute.close();
+
+    saveRouteResponse.then((routeSaved) => {Scaffold.of(context).showSnackBar(SnackBar(content: Text('Route saved')))});
   }
 
   void onChange() {
-    var name = _nameController.text.toLowerCase();
-    debugPrint("autofilling form with $name");
+    var name = _nameController.text.toLowerCase().replaceAll(" ", "");
     _emailController.text = "$name@mydomain.com";
     _destinationController.text = "myemail+$name@gmail.com";
   }
@@ -180,8 +174,7 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), labelText: 'Route name'),
+            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Route name'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
@@ -194,8 +187,7 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), labelText: 'Match Recipient'),
+            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Match Recipient'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
@@ -208,8 +200,7 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(), labelText: 'Forward to'),
+            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Forward to'),
           ),
           SizedBox(height: 8.0),
           Row(

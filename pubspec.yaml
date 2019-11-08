@@ -14,14 +14,14 @@ description: An app to create Mailgun routes.
 version: 1.0.3+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
 #  http: ^0.12.0+2
   liquid_pull_to_refresh: ^1.1.1
   http:
     path: ../http
-  provider: ^2.0.0+1
+  provider: ^3.0.0+1
   flutter:
     sdk: flutter
 

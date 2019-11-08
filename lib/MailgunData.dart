@@ -36,4 +36,15 @@ class MailgunRoute {
         id: json['id'],
         priority: json['priority']);
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['actions'] = this.actions;
+    data['created_at'] = this.createdAt;
+    data['description'] = this.description;
+    data['expression'] = this.expression;
+    data['id'] = this.id;
+    data['priority'] = this.priority;
+    return data;
+  }
 }
