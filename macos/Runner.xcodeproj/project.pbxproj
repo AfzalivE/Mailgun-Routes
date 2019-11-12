@@ -505,6 +505,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/mailgun_routesDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3B48HADAVZ;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter/ephemeral",
@@ -529,6 +530,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter/ephemeral",
