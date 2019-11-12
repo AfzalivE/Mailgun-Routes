@@ -74,3 +74,5 @@ android/keystore.properties
 android/deploy_beta.sh
 ios/Flutter/flutter_export_environment.sh
 fastlane/installer/*
+*deploy_beta.sh
+fastlane/report.xml

@@ -5,35 +5,35 @@ fastlane_version "2.68.0"
 
 lane :beta do |options|
 
-  appcenter_upload(
-    api_token: options[:api_token],
-    owner_name: "afzalive",
-    owner_type: "user",
-    app_name: "Mailgun-Routes",
-    app_os: 'Android',
-    file: "build/app/outputs/apk/release/app-release.apk",
-    notify_testers: true
-  )
+    appcenter_upload(
+        api_token: options[:api_token],
+        owner_name: "afzalive",
+        owner_type: "user",
+        app_name: "Mailgun-Routes",
+        app_os: 'Android',
+        file: "build/app/outputs/apk/release/app-release.apk",
+        notify_testers: true
+    )
 
-  appcenter_upload(
-          api_token: options[:api_token],
-          owner_name: "afzalive",
-          owner_type: "user",
-          app_name: "Mailgun-Routes-iOS",
-          app_platform: "ios",
-          ipa: "build/ios/iphoneos/MailgunRoutes/Runner.ipa",
-          notify_testers: true
-        )
+    appcenter_upload(
+        api_token: options[:api_token],
+        owner_name: "afzalive",
+        owner_type: "user",
+        app_name: "Mailgun-Routes-iOS",
+        app_platform: "ios",
+        file: "build/ios/iphoneos/MailgunRoutes/Runner.ipa",
+        notify_testers: true
+    )
 
-  appcenter_upload(
+    appcenter_upload(
         api_token: options[:api_token],
         owner_name: "afzalive",
         owner_type: "user",
         app_name: "Mailgun-Routes-Mac",
         app_platform: "mac",
-        ipa: "build/macos/Build/Products/Release/mailgun_routes.app",
+        file: "build/macos/Build/Products/Release/Mailgun Routes.app",
         notify_testers: true
-      )
+    )
 
 end
 
