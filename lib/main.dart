@@ -115,9 +115,10 @@ class _RoutesListState extends State<RouteList> {
                 showChildOpacityTransition: false,
                 onRefresh: _refreshList,
                 child: ListView.separated(
-                  separatorBuilder: (context, index) => Divider(
-                    color: Colors.black26,
-                  ),
+                  separatorBuilder: (context, index) =>
+                      Divider(
+                        color: Colors.black26,
+                      ),
                   itemBuilder: (context, position) {
                     return Slidable(
                       key: ValueKey(snapshot.data[position].id),
@@ -278,13 +279,46 @@ class MyScaffold extends StatefulWidget {
 }
 
 class _MyScaffoldState extends State<MyScaffold> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(icon: Icon(choices[0].icon), onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()))
+            }),
+          ],
         ),
         body: widget.body,
         floatingActionButton: widget.floatingActionButton);
   }
 }
+
+class SettingsPage extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() {
+    return SettingsFormState();
+  }
+}
+
+class SettingsFormState extends State<SettingsPage> {
+
+  @override
+  Widget build(BuildContext context) {
+    return ;
+  }
+}
+
+class Choice {
+  const Choice({this.title, this.icon});
+
+  final String title;
+  final IconData icon;
+}
+
+const List<Choice> choices = const <Choice>[
+  const Choice(title: 'Settings', icon: Icons.settings)
+];
