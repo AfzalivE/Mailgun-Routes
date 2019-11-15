@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'MailgunData.dart';
+import 'Models.dart';
 
 void fetchPwnedWebsites(MailgunRoute mailgunRoute) async {
   debugPrint(mailgunRoute.expression);

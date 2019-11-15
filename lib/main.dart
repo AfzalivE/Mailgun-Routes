@@ -7,7 +7,8 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 
 import 'MailgunApi.dart';
-import 'MailgunData.dart';
+import 'Models.dart';
+import 'SearchDelegate.dart';
 
 void main() {
   _setTargetPlatformForDesktop();
@@ -150,7 +151,6 @@ class _RoutesListState extends State<RouteList> {
   }
 }
 
-
 class AddRoutePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -287,7 +287,13 @@ class _MyScaffoldState extends State<MyScaffold> {
           title: Text(widget.title),
           actions: <Widget>[
             IconButton(icon: Icon(choices[0].icon), onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()))
+              showSearch(context: context, delegate: SearchAppBarDelegate(() {
+                debugPrint("Getting cached list");
+                return Provider.of<MailgunApi>(context).list;
+              }));
+            }),
+            IconButton(icon: Icon(choices[1].icon), onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
             }),
           ],
         ),
@@ -308,7 +314,9 @@ class SettingsFormState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ;
+    return MyScaffold(
+        title: ""
+    );
   }
 }
 
@@ -320,5 +328,6 @@ class Choice {
 }
 
 const List<Choice> choices = const <Choice>[
+  const Choice(title: 'Search', icon: Icons.search),
   const Choice(title: 'Settings', icon: Icons.settings)
 ];
