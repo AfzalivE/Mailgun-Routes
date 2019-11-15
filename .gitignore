@@ -78,3 +78,4 @@ fastlane/installer/*
 fastlane/report.xml
 ios/exportOptions.plist
 secrets.json
+ios/build/*

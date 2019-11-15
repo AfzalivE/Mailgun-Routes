@@ -19,9 +19,9 @@ lane :beta do |options|
         api_token: options[:api_token],
         owner_name: "afzalive",
         owner_type: "user",
-        app_name: "Mailgun-Routes-iOS",
-        app_platform: "ios",
-        file: "build/ios/iphoneos/MailgunRoutes/Runner.ipa",
+        app_name: "Mailgun-Routes-Mac",
+        app_platform: "mac",
+        file: "build/macos/Build/Products/Release/Mailgun Routes.app",
         notify_testers: true
     )
 
@@ -29,9 +29,9 @@ lane :beta do |options|
         api_token: options[:api_token],
         owner_name: "afzalive",
         owner_type: "user",
-        app_name: "Mailgun-Routes-Mac",
-        app_platform: "mac",
-        file: "build/macos/Build/Products/Release/Mailgun Routes.app",
+        app_name: "Mailgun-Routes-iOS",
+        app_platform: "ios",
+        file: "build/ios/iphoneos/MailgunRoutes/Runner.ipa",
         notify_testers: true
     )
 
