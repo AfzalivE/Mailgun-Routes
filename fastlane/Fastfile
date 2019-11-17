@@ -5,9 +5,9 @@ fastlane_version "2.68.0"
 
 lane :beta do |options|
 
-    android
-    ios
-    mac
+    ios(options)
+    android(options)
+    mac(options)
 
 end
 
@@ -34,6 +34,10 @@ end
 
 lane :android do |options|
 
+    Dir.chdir("..") do
+        sh("flutter", "build", "apk")
+    end
+
     appcenter_upload(
         api_token: options[:api_token],
         owner_name: "afzalive",
@@ -44,10 +48,13 @@ lane :android do |options|
         notify_testers: true
     )
 
-
 end
 
 lane :mac do |options|
+
+    Dir.chdir("..") do
+        sh("flutter", "build", "macos")
+    end
 
     appcenter_upload(
         api_token: options[:api_token],

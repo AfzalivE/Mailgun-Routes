@@ -20,6 +20,21 @@ or alternatively using `brew cask install fastlane`
 fastlane beta
 ```
 
+### ios
+```
+fastlane ios
+```
+
+### android
+```
+fastlane android
+```
+
+### mac
+```
+fastlane mac
+```
+
 
 ----
 
