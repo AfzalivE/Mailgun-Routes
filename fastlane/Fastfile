@@ -13,6 +13,12 @@ end
 
 lane :ios do |options|
 
+    Dir.chdir("..") do
+        sh("flutter", "clean")
+        sh("rm", "-rf", "ios/Flutter/App.framework/flutter_assets/macos")
+        sh("flutter", "build", "ios")
+    end
+
     build_ios_app(
         workspace: "ios/Runner.xcworkspace",
         export_options: "ios/exportOptions.plist",
