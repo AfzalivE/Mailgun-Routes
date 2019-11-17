@@ -152,7 +152,6 @@
 				TargetAttributes = {
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = 3B48HADAVZ;
 						LastSwiftMigration = 1120;
 						ProvisioningStyle = Manual;
 					};
@@ -494,7 +493,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.afzaln.mailgunRoutes;
 				PRODUCT_NAME = "Mailgun Routes";
-				PROVISIONING_PROFILE_SPECIFIER = MailgunRoutesProfile;
+				PROVISIONING_PROFILE_SPECIFIER = MailgunRoutesAdhoc;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
