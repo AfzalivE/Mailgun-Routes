@@ -56,6 +56,17 @@ class RoutesPage extends StatelessWidget {
     return MyScaffold(
         title: 'Mailgun Routes',
         body: RouteList(),
+        actions:  <Widget>[
+          IconButton(icon: Icon(choices[0].icon), onPressed: () {
+            showSearch(context: context, delegate: SearchAppBarDelegate(() {
+              debugPrint("Getting cached list");
+              return Provider.of<MailgunApi>(context).list;
+            }));
+          }),
+          IconButton(icon: Icon(choices[1].icon), onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+          }),
+        ],
         floatingActionButton: FloatingActionButton(
           onPressed: () => _addNewRoute(context),
           tooltip: 'Add route',
@@ -268,11 +279,12 @@ class AddRouteFormState extends State<AddRouteForm> {
 }
 
 class MyScaffold extends StatefulWidget {
-  MyScaffold({this.title, this.body, this.floatingActionButton}) : super();
+  MyScaffold({this.title, this.body, this.floatingActionButton, this.actions = const []}) : super();
 
   final String title;
   final Widget body;
   final Widget floatingActionButton;
+  final List<Widget> actions;
 
   @override
   _MyScaffoldState createState() => _MyScaffoldState();
@@ -285,17 +297,7 @@ class _MyScaffoldState extends State<MyScaffold> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          actions: <Widget>[
-            IconButton(icon: Icon(choices[0].icon), onPressed: () {
-              showSearch(context: context, delegate: SearchAppBarDelegate(() {
-                debugPrint("Getting cached list");
-                return Provider.of<MailgunApi>(context).list;
-              }));
-            }),
-            IconButton(icon: Icon(choices[1].icon), onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
-            }),
-          ],
+          actions: widget.actions,
         ),
         body: widget.body,
         floatingActionButton: widget.floatingActionButton);

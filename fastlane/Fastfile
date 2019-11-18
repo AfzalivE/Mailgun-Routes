@@ -17,12 +17,22 @@ lane :ios do |options|
         sh("flutter", "build", "ios")
     end
 
-    build_ios_app(
-        workspace: "ios/Runner.xcworkspace",
-        export_options: "ios/exportOptions.plist",
-        output_directory: "build/ios/iphoneos/MailgunRoutes",
-        output_name: "Runner.ipa"
-    )
+    Dir.chdir("../build/ios/iphoneos") do
+        sh("mkdir", "Payload")
+        sh("cp", "-r", "Mailgun\ Routes.app", "Payload/")
+        sh("zip", "--symlinks", "-qr", "Runner.ipa", "Payload")
+    end
+
+ #  Creates a smaller IPA but rebuilds the whole app!
+ #  If enabled, remember to change the file path in
+ #  appcenter_upload to build/ios/iphoneos/MailgunRoutes
+ #
+ #   build_ios_app(
+ #       workspace: "ios/Runner.xcworkspace",
+ #       export_options: "ios/exportOptions.plist",
+ #       output_directory: "build/ios/iphoneos/MailgunRoutes",
+ #       output_name: "Runner.ipa"
+ #   )
 
     appcenter_upload(
         api_token: options[:api_token],
@@ -30,7 +40,7 @@ lane :ios do |options|
         owner_type: "user",
         app_name: "Mailgun-Routes-iOS",
         app_platform: "ios",
-        file: "build/ios/iphoneos/MailgunRoutes/Runner.ipa",
+        file: "build/ios/iphoneos/Runner.ipa",
         notify_testers: true
     )
 
