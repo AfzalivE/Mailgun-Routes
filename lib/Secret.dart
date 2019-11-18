@@ -13,7 +13,7 @@ class Secret {
 }
 
 class SecretLoader {
-  final String secretPath = "secrets.json";
+  final String secretPath = "assets/secrets.json";
 
   Future<Secret> load() async {
     return await rootBundle.loadStructuredData<Secret>(this.secretPath,

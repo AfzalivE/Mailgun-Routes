@@ -68,7 +68,7 @@
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-secrets.json
+assets/secrets.json
 android/app/fabric.properties
 android/keystore.properties
 android/deploy_beta.sh
@@ -77,5 +77,5 @@ fastlane/installer/*
 *deploy_beta.sh
 fastlane/report.xml
 ios/exportOptions.plist
-secrets.json
+assets/secrets.json
 ios/build/*
