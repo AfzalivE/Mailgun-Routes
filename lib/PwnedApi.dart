@@ -8,14 +8,12 @@ import 'Models.dart';
 
 void fetchPwnedWebsites(MailgunRoute mailgunRoute) async {
   debugPrint(mailgunRoute.expression);
-  Match emailMatch =
-      emailPattern.allMatches(mailgunRoute.expression).toList()[0];
-  String email =
-      mailgunRoute.expression.substring(emailMatch.start, emailMatch.end);
+  Match emailMatch = emailPattern.allMatches(mailgunRoute.expression).toList()[0];
+  String email = mailgunRoute.expression.substring(emailMatch.start, emailMatch.end);
   var urlEncodedEmail = Uri.encodeComponent(email);
 
   final response = await http.get(
-      'https://haveibeenpwned.com/api/v2/breachedaccount/$urlEncodedEmail',
+      'https://haveibeenpwned.com/api/v3/breachedaccount/$urlEncodedEmail',
       headers: {HttpHeaders.userAgentHeader: 'Mailgun Routes app'});
 
   if (response.statusCode == 404) {
@@ -32,6 +30,7 @@ void fetchPwnedWebsites(MailgunRoute mailgunRoute) async {
 //    return Future.error("Error getting HaveIBeenPwned data for email: $email");
   }
 
+  debugPrint("Body: ${response.body}");
   final Map<String, dynamic> responseJson = jsonDecode(response.body);
   var items = responseJson['items'] as List;
 
