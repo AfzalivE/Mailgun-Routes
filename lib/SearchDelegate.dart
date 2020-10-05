@@ -59,7 +59,10 @@ class SearchAppBarDelegate extends SearchDelegate {
               },
               child: Text(
                 this.query,
-                style: Theme.of(context).textTheme.display2.copyWith(fontWeight: FontWeight.normal),
+                style: Theme.of(context)
+                    .textTheme
+                    .display2
+                    .copyWith(fontWeight: FontWeight.normal),
               ),
             ),
           ],
@@ -75,7 +78,8 @@ class SearchAppBarDelegate extends SearchDelegate {
     Iterable<MailgunRoute> suggestions = this.query.isEmpty
         ? _routes
         : _routes.where((route) {
-            return route.description.toLowerCase().contains(queryLow) || route.expression.toLowerCase().contains(queryLow);
+            return route.description.toLowerCase().contains(queryLow) ||
+                route.expression.toLowerCase().contains(queryLow);
           });
 
     return _RouteSuggestionList(
@@ -100,7 +104,8 @@ class SearchAppBarDelegate extends SearchDelegate {
 }
 
 class _RouteSuggestionList extends StatelessWidget {
-  const _RouteSuggestionList({this.suggestions, this.query, this.onSelected, this.onDeleted});
+  const _RouteSuggestionList(
+      {this.suggestions, this.query, this.onSelected, this.onDeleted});
 
   final List<MailgunRoute> suggestions;
   final String query;
@@ -112,17 +117,21 @@ class _RouteSuggestionList extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme.subhead;
 
     return ListView.separated(
-      separatorBuilder: (context, position) => Divider(color: Colors.black26),
+      separatorBuilder: (context, position) =>
+          Divider(color: Colors.black26, height: 0.0),
       itemCount: suggestions.length,
       itemBuilder: (BuildContext context, int i) {
         final MailgunRoute suggestedRoute = suggestions[i];
         final String suggestionLow = suggestedRoute.description.toLowerCase();
         final String suggestion = suggestedRoute.description;
 
-        final bool suggestionContainsQuery = query.isNotEmpty && suggestionLow.contains(query);
+        final bool suggestionContainsQuery =
+            query.isNotEmpty && suggestionLow.contains(query);
 
-        final int matchStartIndex = suggestionContainsQuery ? suggestionLow.indexOf(query) : 0;
-        final int matchEndIndex = suggestionContainsQuery ? matchStartIndex + query.length : 0;
+        final int matchStartIndex =
+            suggestionContainsQuery ? suggestionLow.indexOf(query) : 0;
+        final int matchEndIndex =
+            suggestionContainsQuery ? matchStartIndex + query.length : 0;
 
         return Slidable(
           key: ValueKey(suggestedRoute.id),
@@ -142,12 +151,17 @@ class _RouteSuggestionList extends StatelessWidget {
                 text: suggestion.substring(0, matchStartIndex),
                 style: textTheme,
                 children: [
-                  TextSpan(text: suggestion.substring(matchStartIndex, matchEndIndex), style: textTheme.copyWith(fontWeight: FontWeight.bold), children: [
-                    TextSpan(
-                      text: suggestion.substring(matchEndIndex, suggestion.length),
-                      style: textTheme,
-                    )
-                  ])
+                  TextSpan(
+                      text:
+                          suggestion.substring(matchStartIndex, matchEndIndex),
+                      style: textTheme.copyWith(fontWeight: FontWeight.bold),
+                      children: [
+                        TextSpan(
+                          text: suggestion.substring(
+                              matchEndIndex, suggestion.length),
+                          style: textTheme,
+                        )
+                      ])
                 ],
               ),
             ),

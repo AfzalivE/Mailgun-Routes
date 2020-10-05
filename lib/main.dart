@@ -38,7 +38,8 @@ class MailgunApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Mailgun Routes',
         theme: ThemeData(primarySwatch: Colors.blue),
-        darkTheme: ThemeData(primarySwatch: Colors.blue, backgroundColor: Colors.grey[850]),
+        darkTheme: ThemeData(
+            primarySwatch: Colors.blue, backgroundColor: Colors.grey[850]),
         home: RoutesPage(),
       ),
     );
@@ -46,9 +47,9 @@ class MailgunApp extends StatelessWidget {
 }
 
 class RoutesPage extends StatelessWidget {
-
   void _addNewRoute(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => AddRoutePage()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => AddRoutePage()));
   }
 
   @override
@@ -56,23 +57,29 @@ class RoutesPage extends StatelessWidget {
     return MyScaffold(
         title: 'Mailgun Routes',
         body: RouteList(),
-        actions:  <Widget>[
-          IconButton(icon: Icon(choices[0].icon), onPressed: () {
-            showSearch(context: context, delegate: SearchAppBarDelegate(() {
-              debugPrint("Getting cached list");
-              return Provider.of<MailgunApi>(context).list;
-            }));
-          }),
-          IconButton(icon: Icon(choices[1].icon), onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
-          }),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(choices[0].icon),
+              onPressed: () {
+                showSearch(
+                    context: context,
+                    delegate: SearchAppBarDelegate(() {
+                      debugPrint("Getting cached list");
+                      return Provider.of<MailgunApi>(context).list;
+                    }));
+              }),
+          IconButton(
+              icon: Icon(choices[1].icon),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SettingsPage()));
+              }),
         ],
         floatingActionButton: FloatingActionButton(
           onPressed: () => _addNewRoute(context),
           tooltip: 'Add route',
           child: Icon(Icons.add),
-        )
-    );
+        ));
   }
 }
 
@@ -97,7 +104,8 @@ class _RoutesListState extends State<RouteList> {
   Future<void> _deleteRoute(int position) async {
     var mailgunApi = Provider.of<MailgunApi>(context);
     _routeList.then((list) {
-      debugPrint("Going to delete item at $position, which is ${list[position].description}");
+      debugPrint(
+          "Going to delete item at $position, which is ${list[position].description}");
       var id = list[position].id;
       list.removeAt(position); // remove from list first
       mailgunApi.deleteRoute(id);
@@ -128,9 +136,7 @@ class _RoutesListState extends State<RouteList> {
                 onRefresh: _refreshList,
                 child: ListView.separated(
                   separatorBuilder: (context, index) =>
-                      Divider(
-                        color: Colors.black26,
-                      ),
+                      Divider(color: Colors.black26, height: 0.0),
                   itemBuilder: (context, position) {
                     return Slidable(
                       key: ValueKey(snapshot.data[position].id),
@@ -200,13 +206,17 @@ class AddRouteFormState extends State<AddRouteForm> {
       return;
     }
 
-    var savingRoute = Scaffold.of(context).showSnackBar(SnackBar(content: Text('Saving route')));
+    var savingRoute = Scaffold.of(context)
+        .showSnackBar(SnackBar(content: Text('Saving route')));
 
     var mailgunApi = Provider.of<MailgunApi>(context);
     var saveRouteResponse = mailgunApi.saveRoute(_routeData);
     savingRoute.close();
 
-    saveRouteResponse.then((routeSaved) => {Scaffold.of(context).showSnackBar(SnackBar(content: Text('Route saved')))});
+    saveRouteResponse.then((routeSaved) => {
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text('Route saved')))
+        });
   }
 
   void onChange() {
@@ -231,7 +241,8 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Route name'),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Route name'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
@@ -244,7 +255,8 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Match Recipient'),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Match Recipient'),
           ),
           SizedBox(height: 8.0),
           TextFormField(
@@ -257,7 +269,8 @@ class AddRouteFormState extends State<AddRouteForm> {
               }
               return null;
             },
-            decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Forward to'),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(), labelText: 'Forward to'),
           ),
           SizedBox(height: 8.0),
           Row(
@@ -279,7 +292,12 @@ class AddRouteFormState extends State<AddRouteForm> {
 }
 
 class MyScaffold extends StatefulWidget {
-  MyScaffold({this.title, this.body, this.floatingActionButton, this.actions = const []}) : super();
+  MyScaffold(
+      {this.title,
+      this.body,
+      this.floatingActionButton,
+      this.actions = const []})
+      : super();
 
   final String title;
   final Widget body;
@@ -291,7 +309,6 @@ class MyScaffold extends StatefulWidget {
 }
 
 class _MyScaffoldState extends State<MyScaffold> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -305,7 +322,6 @@ class _MyScaffoldState extends State<MyScaffold> {
 }
 
 class SettingsPage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return SettingsFormState();
@@ -313,11 +329,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsFormState extends State<SettingsPage> {
-
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-        title: ""
+      title: "",
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: AddRouteForm(),
+      ),
     );
   }
 }
